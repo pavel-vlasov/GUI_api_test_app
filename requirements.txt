@@ -1,0 +1,7 @@
+customtkinter
+python-dotenv
+requests
+pexpect
+wexpect
+jinja2
+pytest
