@@ -45,16 +45,26 @@ class GuiController:
             self.window.log_panel.append("ERROR: Max iterations must be a positive integer.")
             return
 
-        oauth = OAuthConfig(
-            token_url=os.getenv("TOKEN_URL", ""),
-            client_id=os.getenv("CLIENT_ID", ""),
-            client_secret=os.getenv("CLIENT_SECRET", ""),
-            scopes=os.getenv("SCOPES", "").split(),
-        ) if values["auth_mode"] == "oauth" else None
+        oauth = None
+        static_headers = {}
+
+        if values["auth_mode"] == "oauth":
+            if not values["oauth_token_url"] or not values["oauth_client_id"] or not values["oauth_client_secret"]:
+                self.window.log_panel.append("ERROR: OAuth token URL, client ID and client secret are required for oauth mode.")
+                return
+            oauth = OAuthConfig(
+                token_url=values["oauth_token_url"],
+                client_id=values["oauth_client_id"],
+                client_secret=values["oauth_client_secret"],
+                scopes=values["oauth_scopes"].split(),
+            )
+        elif values["static_auth_header"]:
+            static_headers = {"Authorization": values["static_auth_header"]}
 
         cfg = AppConfig(
             auth_mode=values["auth_mode"],
             oauth=oauth,
+            static_headers=static_headers,
             sources=SourceConfig(values["mulesoft_url"], values["confluence_url"]),
             output_dir=self.output_dir,
             max_iterations=max_iterations,

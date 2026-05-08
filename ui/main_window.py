@@ -33,6 +33,22 @@ class MainWindow(ctk.CTk):
         self.report_button = ctk.CTkButton(controls, text="Open HTML Report", command=open_report_callback)
         self.report_button.pack(side="left", padx=6)
 
+        self.bind_all("<Control-v>", self._paste_from_clipboard)
+        self.bind_all("<Control-V>", self._paste_from_clipboard)
+        self.bind_all("<Shift-Insert>", self._paste_from_clipboard)
+
+    def _paste_from_clipboard(self, _event) -> str | None:
+        """Insert clipboard text into currently focused entry/text widget."""
+
+        focused = self.focus_get()
+        if focused is None:
+            return None
+        try:
+            focused.event_generate("<<Paste>>")
+        except Exception:  # noqa: BLE001
+            return None
+        return "break"
+
     def set_running_state(self, is_running: bool) -> None:
         """Toggle controls based on active run state."""
 
